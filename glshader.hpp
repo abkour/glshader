@@ -2,10 +2,13 @@
 #include <glad/glad.h>
 #include <string_view>
 
+#include <algorithm>
 #include <fstream>
+#include <initializer_list>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace tinygui {
 
@@ -14,6 +17,8 @@ struct Shader {
 	// This is only used as an intermediate step.
 	inline Shader() noexcept;
 	inline Shader(Shader&& other) noexcept;
+
+	inline Shader(std::initializer_list<std::pair<GLenum, std::string>>&& shaders_list);
 
 	inline Shader(const char* vertexshaderPath, const char* fragmentshaderPath);
 	inline ~Shader();
@@ -109,6 +114,66 @@ Shader::Shader(const char* vertexshaderPath, const char* fragmentshaderPath) {
 
 	glDeleteShader(vertexShaderID);
 	glDeleteShader(fragmentShaderID);
+}
+
+Shader::Shader(std::initializer_list<std::pair<GLenum, std::string>>&& shaders_list) {
+	std::vector<std::pair<GLenum, std::string>> shaders(shaders_list);
+	std::vector<GLuint> shaderIds(shaders.size());
+	shaderIds.reserve(shaders.size());
+
+	for (const auto& shader : shaders) {
+		shaderIds.push_back(glCreateShader(std::get<GLenum>(shader)));
+
+		std::ifstream shaderFile(std::get<std::string>(shader));
+		if (shaderFile.fail()) {
+			throw std::runtime_error("Filename " + std::get<std::string>(shader) + " does not exist!");
+		}
+
+		std::stringstream shaderSource;
+		shaderSource << shaderFile.rdbuf();
+		shaderFile.close();
+
+		const auto shaderSourceString = shaderSource.str();
+		const auto shaderSourceCString = shaderSourceString.c_str();
+
+		glShaderSource(shaderIds.back(), 1, &shaderSourceCString, NULL);
+		glCompileShader(shaderIds.back());
+
+		try {
+			std::string errorMessage;
+			isShaderCompilationValid(std::get<GLenum>(shader), shaderIds.back(), errorMessage);
+		}
+		catch (std::runtime_error& e) {
+			std::cout << e.what();
+			std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
+			throw std::runtime_error("Shader creation failed!");
+		}
+		catch (...) {
+			std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
+			throw std::runtime_error("Unexpected error during shader validation stage. Shader creation failed!");
+		}
+	}
+
+	programID = glCreateProgram();
+	std::for_each(shaderIds.begin(), shaderIds.end(), [&](GLuint shaderId) { glAttachShader(programID, shaderId); });
+	glLinkProgram(programID);
+	std::for_each(shaderIds.begin(), shaderIds.end(), [&](GLuint shaderId) { glDetachShader(programID, shaderId); });
+
+	try {
+		std::string errorMessage;
+		isProgramLinkageValid(programID, errorMessage);
+	}
+	catch (std::runtime_error& e) {
+		std::cout << e.what();
+		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
+		throw std::runtime_error("Shader creation failed!");
+	}
+	catch (...) {
+		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
+		throw std::runtime_error("Unexpected error during shader validation stage. Shader creation failed!");
+	}
+
+	std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
 }
 
 Shader::Shader(Shader&& other) noexcept {

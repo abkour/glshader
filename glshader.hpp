@@ -12,8 +12,6 @@
 
 #include <type_traits>
 
-namespace tinygui {
-
 using shader_pair = std::pair<GLenum, std::string>;
 
 struct ShaderWrapper {
@@ -256,6 +254,4 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 		source.insert(nextTokenPosition + 1, include_file_source.c_str(), fileSize);
 		nextTokenPosition += fileSize;
 	}
-}
-
 }

@@ -16,6 +16,8 @@ using shader_pair = std::pair<GLenum, std::string>;
 
 struct ShaderWrapper {
 
+	ShaderWrapper() noexcept : programID(0) {}
+
 	template<typename... T, typename = std::enable_if<std::conjunction_v<std::is_same<std::pair<GLenum, std::string>, T>...>>>
 	ShaderWrapper(bool enableExtendedGLSL, T&&... args) {
 		std::vector<typename std::common_type<T...>::type> shaders = { args... };
@@ -57,13 +59,18 @@ struct ShaderWrapper {
 		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
 	}
 
-	inline ShaderWrapper(ShaderWrapper&& other) noexcept;
+	inline ShaderWrapper(ShaderWrapper&& other) noexcept
+		: programID(std::exchange(other.programID, 0))
+	{}
 
-	inline ~ShaderWrapper();
+	inline ShaderWrapper& operator=(ShaderWrapper&& other) noexcept;
+
+	inline ~ShaderWrapper() {
+		glDeleteProgram(programID);
+	}
 
 	// You never want to create a copy of a shader. Give me one good reason.
 	inline ShaderWrapper& operator=(const ShaderWrapper& other) = delete;
-	inline ShaderWrapper operator=(ShaderWrapper&& other) = delete;
 
 	inline void bind();
 	inline GLuint id() const {
@@ -74,25 +81,15 @@ private:
 
 	GLuint programID;
 
-	inline ShaderWrapper() noexcept;
-
 	static inline bool isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds);
 	static inline void isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds);
 
 	void parseSource(std::string& source);
 };
 
-ShaderWrapper::ShaderWrapper() noexcept
-	: programID(0)
-{}
-
-ShaderWrapper::ShaderWrapper(ShaderWrapper&& other) noexcept {
-	programID = other.programID;
-	other.programID = 0;
-}
-
-ShaderWrapper::~ShaderWrapper() {
-	glDeleteProgram(programID);
+ShaderWrapper& ShaderWrapper::operator=(ShaderWrapper&& other) noexcept {
+	programID = std::exchange(other.programID, 0);
+	return *this;
 }
 
 void ShaderWrapper::bind() {
@@ -146,10 +143,6 @@ void ShaderWrapper::isProgramLinkageValid(GLuint programID, std::vector<GLuint>&
 		std::string errorMessage = "Program linkage error. Error message: " + std::string(errorLog);
 		throw std::runtime_error(errorMessage);
 	}
-}
-
-inline std::size_t findTokenPos(const std::string& source, const char token, const std::size_t offset) {
-	return source.find(token, offset);
 }
 
 inline void ShaderWrapper::parseSource(std::string& source) {

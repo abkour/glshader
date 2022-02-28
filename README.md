@@ -1,7 +1,7 @@
 # glshader
 
 A OpenGL shader wrapper used for generic graphics applications. If you are looking for a minimal shader wrapper that deals with error handling while 
-providing RAII consider using the library.
+providing RAII consider using this library.
 
 ## Dependencies
 
@@ -34,8 +34,10 @@ you can call the member function 'bind(void)' to bind this shader program as the
 
 You can move shaders to the other by using the following methods:
 
-1. 
+1.
+```
 		auto shaderA(std::move(shaderB))
+```
 2. 
 		auto shaderA = std::move(shaderB)
 3. 

@@ -25,7 +25,6 @@ struct Shader {
 		shaderIds.reserve(shaders.size());
 		
 		for (auto shader : shaders) {
-
 			shaderIds.push_back(glCreateShader(std::get<GLenum>(shader)));
 
 			std::ifstream shaderFile(std::get<std::string>(shader));

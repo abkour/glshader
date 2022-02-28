@@ -42,7 +42,7 @@ Shader::Shader() noexcept
 	: programID(0)
 {}
 
-inline Shader::Shader(const char* vertexshaderPath, const char* fragmentshaderPath) {
+Shader::Shader(const char* vertexshaderPath, const char* fragmentshaderPath) {
 	//
 	// Read the vertex shader code into a c string
 	std::ifstream vsFile(vertexshaderPath, std::ios::binary);
@@ -117,15 +117,15 @@ Shader::Shader(Shader&& other) noexcept {
 	other.programID = 0;
 }
 
-inline Shader::~Shader() {
+Shader::~Shader() {
 	glDeleteProgram(programID);
 }
 
-inline void Shader::bind() {
+void Shader::bind() {
 	glUseProgram(programID);
 }
 
-inline bool Shader::isShaderCompilationValid(GLuint shaderID, GLenum shaderType, std::string& errorMessage) {
+bool Shader::isShaderCompilationValid(GLuint shaderID, GLenum shaderType, std::string& errorMessage) {
 	int success;
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
 	if (success != GL_TRUE) {
@@ -148,7 +148,8 @@ inline bool Shader::isShaderCompilationValid(GLuint shaderID, GLenum shaderType,
 	}
 	return true;
 }
-inline bool Shader::isProgramLinkageValid(GLuint programID, std::string& errorMessage) {
+
+bool Shader::isProgramLinkageValid(GLuint programID, std::string& errorMessage) {
 	int success;
 	glGetProgramiv(programID, GL_LINK_STATUS, &success);
 	if (success != GL_TRUE) {

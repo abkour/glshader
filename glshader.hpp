@@ -10,14 +10,58 @@
 #include <string>
 #include <vector>
 
+#include <type_traits>
+
 namespace tinygui {
+
+using shader_pair = std::pair<GLenum, std::string>;
 
 struct Shader {
 
-	template<typename... Shaders>
-	inline Shader(Shaders... shaders, bool enableExtendedGLSL);
-	
-	inline Shader(std::initializer_list<std::pair<GLenum, std::string>>&& shaders_list, bool enableExtendedGLSL);
+	template<typename... T, typename = std::enable_if<std::conjunction_v<std::is_same<std::pair<GLenum, std::string>, T>...>>>
+	Shader(bool enableExtendedGLSL, T&&... args) {
+		std::vector<typename std::common_type<T...>::type> shaders = { args... };
+		std::vector<GLuint> shaderIds(shaders.size());
+		shaderIds.reserve(shaders.size());
+		
+		for (auto shader : shaders) {
+
+			std::cout << "Shadertype: " << std::get<GLenum>(shader) << '\n';
+			std::cout << "Shaderpath: " << std::get<std::string>(shader) << '\n';
+
+			shaderIds.push_back(glCreateShader(std::get<GLenum>(shader)));
+
+			std::ifstream shaderFile(std::get<std::string>(shader));
+			if (shaderFile.fail()) {
+				throw std::runtime_error("Filename " + std::get<std::string>(shader) + " does not exist!");
+			}
+
+			std::stringstream shaderSource;
+			shaderSource << shaderFile.rdbuf();
+			shaderFile.close();
+
+			auto shaderSourceString = shaderSource.str();
+			// Parse the source code for extended GLSL features
+			if (enableExtendedGLSL) {
+				parseSource(shaderSourceString);
+			}
+
+			const auto shaderSourceCString = shaderSourceString.c_str();
+
+			glShaderSource(shaderIds.back(), 1, &shaderSourceCString, NULL);
+			glCompileShader(shaderIds.back());
+
+			isShaderCompilationValid(std::get<GLenum>(shader), shaderIds.back(), shaderIds);
+		}
+		
+		programID = glCreateProgram();
+		std::for_each(shaderIds.begin(), shaderIds.end(), [&](GLuint shaderId) { glAttachShader(programID, shaderId); });
+		glLinkProgram(programID);
+		std::for_each(shaderIds.begin(), shaderIds.end(), [&](GLuint shaderId) { glDetachShader(programID, shaderId); });
+
+		isProgramLinkageValid(programID, shaderIds);
+		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
+	}
 
 	inline Shader(Shader&& other) noexcept;
 
@@ -49,7 +93,7 @@ private:
 Shader::Shader() noexcept
 	: programID(0)
 {}
-
+/*
 Shader::Shader(std::initializer_list<std::pair<GLenum, std::string>>&& shaders_list, bool enableExtendedGLSL) {
 	std::vector<std::pair<GLenum, std::string>> shaders(shaders_list);
 	std::vector<GLuint> shaderIds(shaders.size());
@@ -89,7 +133,7 @@ Shader::Shader(std::initializer_list<std::pair<GLenum, std::string>>&& shaders_l
 	isProgramLinkageValid(programID, shaderIds);
 	std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
 }
-
+*/
 Shader::Shader(Shader&& other) noexcept {
 	programID = other.programID;
 	other.programID = 0;

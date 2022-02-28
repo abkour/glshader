@@ -20,8 +20,7 @@ struct Shader {
 
 	// You never want to create a copy of shader. Give me one good reason.
 	inline Shader& operator=(const Shader& other) = delete;
-
-    inline Shader operator=(Shader&& other);
+	inline Shader operator=(Shader&& other) = delete;
 
 	inline void bind();
 	inline GLuint id() const {

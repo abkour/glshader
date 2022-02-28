@@ -29,3 +29,17 @@ have to use std::pair<GLenum, std::string> which is a little bit more cumbersome
 
 Finally, the construction of the shader program has finished. If any errors occured, you will need to catch them. If no errors occured,
 you can call the member function 'bind(void)' to bind this shader program as the active shader program.
+
+#### Moving shaders
+
+You can move shaders to the other by using the following methods:
+
+1. 
+	auto shaderA(std::move(shaderB))
+2. 
+	auto shaderA = std::move(shaderB)
+3. 
+	ShaderWrapper shaderA;
+	shaderA = std::move(shaderA)
+
+There is no way to construct a copy of a shader and I don't see a reason why one would want to do that.

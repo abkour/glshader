@@ -219,13 +219,8 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 				nextTokenPosition = i;
 				break;
 			} else if (source[i] == '\n') {
-				nextTokenPosition = std::string::npos;
-				break;
+				throw std::runtime_error("Error. Could not find end of #include statement!");
 			}
-		}
-
-		if (nextTokenPosition == std::string::npos) {
-			throw std::runtime_error("Error. Could not find end of #include statement!");
 		}
 
 		auto linesize = (nextTokenPosition - positionOfRoute) + 1;

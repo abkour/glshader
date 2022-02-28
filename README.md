@@ -12,13 +12,20 @@ to point to the correct installation path.
 
 Very simply, you only need to write the following code to write your shader:
 
-    	Shader shaderProgram =
-		{
-			{ GL_VERTEX_SHADER, "mypath/myshader.glsl.vs" },
-			{ GL_FRAGMENT_SHADER, "mypath/myshader.glsl.fs"} //,
+    	ShaderWrapper shaderProgram
+		(
+			true,
+			shader_pair(GL_VERTEX_SHADER, "mypath/myshader.glsl.vs"),
+			shader_pair(GL_FRAGMENT_SHADER, "mypath/myshader.glsl.fs")
             // potentially more shaders here
-		};
+		);
 		shaderProgram.bind();
 
-The constructor automatically creates the list of shaders you specified by reading the files at the associated paths. It reports errors
-by throwing exceptions that you need to catch. If you wish to use the shader simply call the bind method.
+The first parameter 'enableExtendedGLSL' is a boolean that tells the shader class to parse the shader source code for #include directives.
+
+The second parameter is a parameter pack of type std::pair<GLenum, std::string> that specifies the shader type and their associated 
+file locations. Make sure to use the 'shader_pair' type alias to allow the compiler to deduce the correct type. Alternatively, you would 
+have to use std::pair<GLenum, std::string> which is a little bit more cumbersome. 
+
+Finally, the construction of the shader program has finished. If any errors occured, you will need to catch them. If no errors occured,
+you can call the member function 'bind(void)' to bind this shader program as the active shader program.

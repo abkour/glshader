@@ -16,10 +16,10 @@ namespace tinygui {
 
 using shader_pair = std::pair<GLenum, std::string>;
 
-struct Shader {
+struct ShaderWrapper {
 
 	template<typename... T, typename = std::enable_if<std::conjunction_v<std::is_same<std::pair<GLenum, std::string>, T>...>>>
-	Shader(bool enableExtendedGLSL, T&&... args) {
+	ShaderWrapper(bool enableExtendedGLSL, T&&... args) {
 		std::vector<typename std::common_type<T...>::type> shaders = { args... };
 		std::vector<GLuint> shaderIds(shaders.size());
 		shaderIds.reserve(shaders.size());
@@ -59,13 +59,13 @@ struct Shader {
 		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
 	}
 
-	inline Shader(Shader&& other) noexcept;
+	inline ShaderWrapper(ShaderWrapper&& other) noexcept;
 
-	inline ~Shader();
+	inline ~ShaderWrapper();
 
 	// You never want to create a copy of a shader. Give me one good reason.
-	inline Shader& operator=(const Shader& other) = delete;
-	inline Shader operator=(Shader&& other) = delete;
+	inline ShaderWrapper& operator=(const ShaderWrapper& other) = delete;
+	inline ShaderWrapper operator=(ShaderWrapper&& other) = delete;
 
 	inline void bind();
 	inline GLuint id() const {
@@ -76,7 +76,7 @@ private:
 
 	GLuint programID;
 
-	inline Shader() noexcept;
+	inline ShaderWrapper() noexcept;
 
 	static inline bool isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds);
 	static inline void isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds);
@@ -84,24 +84,24 @@ private:
 	void parseSource(std::string& source);
 };
 
-Shader::Shader() noexcept
+ShaderWrapper::ShaderWrapper() noexcept
 	: programID(0)
 {}
 
-Shader::Shader(Shader&& other) noexcept {
+ShaderWrapper::ShaderWrapper(ShaderWrapper&& other) noexcept {
 	programID = other.programID;
 	other.programID = 0;
 }
 
-Shader::~Shader() {
+ShaderWrapper::~ShaderWrapper() {
 	glDeleteProgram(programID);
 }
 
-void Shader::bind() {
+void ShaderWrapper::bind() {
 	glUseProgram(programID);
 }
 
-bool Shader::isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds) {
+bool ShaderWrapper::isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds) {
 	int success;
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
 	if (success != GL_TRUE) {
@@ -136,7 +136,7 @@ bool Shader::isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::v
 	}
 }
 
-void Shader::isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds) {
+void ShaderWrapper::isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds) {
 	int success;
 	glGetProgramiv(programID, GL_LINK_STATUS, &success);
 	if (success != GL_TRUE) {
@@ -154,7 +154,7 @@ inline std::size_t findTokenPos(const std::string& source, const char token, con
 	return source.find(token, offset);
 }
 
-inline void Shader::parseSource(std::string& source) {
+inline void ShaderWrapper::parseSource(std::string& source) {
 	std::size_t nextTokenPosition = 0;
 	std::size_t positionOfRoute = 0;
 	std::size_t linePositionOfDirective = 0;

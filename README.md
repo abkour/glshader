@@ -12,14 +12,14 @@ to point to the correct installation path.
 
 Very simply, you only need to write the following code to write your shader:
 ```c++
-    	ShaderWrapper shaderProgram
-		(
-			true,
-			shader_pair(GL_VERTEX_SHADER, "mypath/myshader.glsl.vs"),
-			shader_pair(GL_FRAGMENT_SHADER, "mypath/myshader.glsl.fs")
-            // potentially more shaders here
-		);
-		shaderProgram.bind();
+ShaderWrapper shaderProgram
+(
+	true,
+	shader_pair(GL_VERTEX_SHADER, "mypath/myshader.glsl.vs"),
+	shader_pair(GL_FRAGMENT_SHADER, "mypath/myshader.glsl.fs")
+	// potentially more shaders here
+);
+shaderProgram.bind();
 ```
 
 The first parameter 'enableExtendedGLSL' is a boolean that tells the shader class to parse the shader source code for #include directives.

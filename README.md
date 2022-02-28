@@ -1,4 +1,4 @@
-# glshader
+# shaderdirect
 
 A OpenGL shader wrapper used for generic graphics applications. If you are looking for a minimal shader wrapper that deals with error handling while 
 providing RAII consider using this library.

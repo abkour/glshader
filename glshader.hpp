@@ -26,9 +26,6 @@ struct Shader {
 		
 		for (auto shader : shaders) {
 
-			std::cout << "Shadertype: " << std::get<GLenum>(shader) << '\n';
-			std::cout << "Shaderpath: " << std::get<std::string>(shader) << '\n';
-
 			shaderIds.push_back(glCreateShader(std::get<GLenum>(shader)));
 
 			std::ifstream shaderFile(std::get<std::string>(shader));

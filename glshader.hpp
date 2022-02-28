@@ -14,6 +14,9 @@ namespace tinygui {
 
 struct Shader {
 
+	template<typename... Shaders>
+	inline Shader(Shaders... shaders, bool enableExtendedGLSL);
+	
 	inline Shader(std::initializer_list<std::pair<GLenum, std::string>>&& shaders_list, bool enableExtendedGLSL);
 
 	inline Shader(Shader&& other) noexcept;
@@ -237,18 +240,9 @@ inline void Shader::parseSource(std::string& source) {
 
 		auto linesize = (nextTokenPosition - positionOfRoute) + 1;
 
-		// 4. Return the substr from '<' to '>'
-		std::cout << "Position: " << currentLine << '\n';
-		std::cout << "Comment: " << linePositionOfLastComment << '\n';
-		std::cout << "linesize: " << linesize << '\n';
-		std::cout << source.substr(prevTokenPosition, nextTokenPosition - prevTokenPosition) << '\n';
-	
-
 		auto include_path = source.substr(prevTokenPosition, nextTokenPosition - prevTokenPosition);
-		
 		source.erase(positionOfRoute, linesize);
 		nextTokenPosition -= linesize;
-
 		
 		// Insert the code from the include path to the source code
 		std::ifstream include_file(include_path, std::ios::binary);
@@ -263,7 +257,7 @@ inline void Shader::parseSource(std::string& source) {
 		auto include_file_source = include_file_stream.str();
 		const std::size_t fileSize = include_file_source.size();
 		
-		source.insert(nextTokenPosition, include_file_source.c_str(), fileSize);
+		source.insert(nextTokenPosition + 1, include_file_source.c_str(), fileSize);
 		nextTokenPosition += fileSize;
 	}
 }

@@ -11,7 +11,7 @@ to point to the correct installation path.
 ## Usage
 
 Very simply, you only need to write the following code to write your shader:
-
+```c++
     	ShaderWrapper shaderProgram
 		(
 			true,
@@ -20,6 +20,7 @@ Very simply, you only need to write the following code to write your shader:
             // potentially more shaders here
 		);
 		shaderProgram.bind();
+```
 
 The first parameter 'enableExtendedGLSL' is a boolean that tells the shader class to parse the shader source code for #include directives.
 
@@ -34,14 +35,15 @@ you can call the member function 'bind(void)' to bind this shader program as the
 
 You can move shaders to the other by using the following methods:
 
-1.
-```
+```c++
 		auto shaderA(std::move(shaderB))
 ```
-2. 
+```c++
 		auto shaderA = std::move(shaderB)
-3. 
+```
+```c++
 		ShaderWrapper shaderA;
 		shaderA = std::move(shaderA)
+```
 
 There is no way to construct a copy of a shader and I don't see a reason why one would want to do that.

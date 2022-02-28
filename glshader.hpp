@@ -134,8 +134,20 @@ bool Shader::isShaderCompilationValid(GLuint shaderID, GLenum shaderType, std::s
 		case GL_VERTEX_SHADER:
 			errorMessage += "VERTEX_SHADER::";
 			break;
+		case GL_TESS_CONTROL_SHADER:
+			errorMessage += "TESSELLATION_CONTROL_SHADER::";
+			break;
+		case GL_TESS_EVALUATION_SHADER:
+			errorMessage += "TESSELLATION_EVALUATION_SHADER::";
+			break;
+		case GL_GEOMETRY_SHADER:
+			errorMessage += "GEOMETRY_SHADER::";
+			break;
 		case GL_FRAGMENT_SHADER:
 			errorMessage += "FRAGMENT_SHADER::";
+			break;
+		case GL_COMPUTE_SHADER:
+			errorMessage += "COMPUTE_SHADER::";
 			break;
 		default:
 			errorMessage += "INCORRECT_SHADER_SPECIFIED::";

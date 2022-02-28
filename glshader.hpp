@@ -158,6 +158,8 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 	std::size_t linePositionOfDirective = 0;
 	std::size_t currentLine = 0;
 	std::size_t linePositionOfLastComment = 0;
+	constexpr char include_str[] = "include <";
+	constexpr std::size_t include_size = sizeof(include_str) - 1;
 	while (true) {
 		// 1. Find the first # token
 		bool characterFound = false;
@@ -195,8 +197,6 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 		}
 
 		// 2. Check if the following characters match the string "include <"
-		constexpr char include_str[] = "include <";
-		constexpr std::size_t include_size = sizeof(include_str) - 1;
 		bool isEqual = true;
 		for (int i = 0; i < include_size; ++i) {
 			// We use bounds checking, because the array access might read out of bounds memory.

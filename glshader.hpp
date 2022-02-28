@@ -38,83 +38,13 @@ private:
 
 private:
 
-	static inline bool isShaderCompilationValid(GLuint shaderID, GLenum shaderType, std::string& errorMessage);
-	static inline bool isProgramLinkageValid(GLuint programID, std::string& errorMessage);
+	static inline bool isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds);
+	static inline void isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds);
 };
 
 Shader::Shader() noexcept
 	: programID(0)
 {}
-
-Shader::Shader(const char* vertexshaderPath, const char* fragmentshaderPath) {
-	//
-	// Read the vertex shader code into a c string
-	std::ifstream vsFile(vertexshaderPath, std::ios::binary);
-	if (vsFile.fail()) {
-		throw std::runtime_error("File missing. Check the existence of \"gui_shader.glsl.vs\" in folder ..\impl");
-	}
-
-	std::ostringstream vsFileStream;
-	vsFileStream << vsFile.rdbuf();
-	// Close the file, we don't need it anymore
-	vsFile.close();
-	std::string vsFileString = std::move(vsFileStream.str());
-	const char* vsFileCString = vsFileString.c_str();
-
-	//
-	// Read the fragment shader code into a c string
-	std::ifstream fsFile(fragmentshaderPath, std::ios::binary);
-	if (fsFile.fail()) {
-		throw std::runtime_error("File missing. Check the existence of \"gui_shader.glsl.vs\" in folder ..\impl");
-	}
-
-	std::ostringstream fsFileStream;
-	fsFileStream << fsFile.rdbuf();
-	// Close the file, we don't need it anymore
-	fsFile.close();
-	std::string fsFileString = std::move(fsFileStream.str());
-	const char* fsFileCString = fsFileString.c_str();
-
-
-	//
-	// Compile shader
-	GLuint vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-	GLuint fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-
-	glShaderSource(vertexShaderID, 1, &vsFileCString, NULL);
-	glShaderSource(fragmentShaderID, 1, &fsFileCString, NULL);
-
-	glCompileShader(vertexShaderID);
-	glCompileShader(fragmentShaderID);
-
-	std::string compilationStatusMessage;
-	if (!isShaderCompilationValid(vertexShaderID, GL_VERTEX_SHADER, compilationStatusMessage)) {
-		glDeleteShader(vertexShaderID);
-		glDeleteShader(fragmentShaderID);
-		throw std::runtime_error(compilationStatusMessage);
-	}
-	if (!isShaderCompilationValid(fragmentShaderID, GL_FRAGMENT_SHADER, compilationStatusMessage)) {
-		glDeleteShader(vertexShaderID);
-		glDeleteShader(fragmentShaderID);
-		throw std::runtime_error(compilationStatusMessage);
-	}
-
-	programID = glCreateProgram();
-	glAttachShader(programID, vertexShaderID);
-	glAttachShader(programID, fragmentShaderID);
-
-	glLinkProgram(programID);
-
-	std::string linkageStatusMessage;
-	if (!isProgramLinkageValid(programID, linkageStatusMessage)) {
-		glDetachShader(programID, vertexShaderID);
-		glDetachShader(programID, fragmentShaderID);
-		throw std::runtime_error(linkageStatusMessage);
-	}
-
-	glDeleteShader(vertexShaderID);
-	glDeleteShader(fragmentShaderID);
-}
 
 Shader::Shader(std::initializer_list<std::pair<GLenum, std::string>>&& shaders_list) {
 	std::vector<std::pair<GLenum, std::string>> shaders(shaders_list);
@@ -139,19 +69,7 @@ Shader::Shader(std::initializer_list<std::pair<GLenum, std::string>>&& shaders_l
 		glShaderSource(shaderIds.back(), 1, &shaderSourceCString, NULL);
 		glCompileShader(shaderIds.back());
 
-		try {
-			std::string errorMessage;
-			isShaderCompilationValid(std::get<GLenum>(shader), shaderIds.back(), errorMessage);
-		}
-		catch (std::runtime_error& e) {
-			std::cout << e.what();
-			std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
-			throw std::runtime_error("Shader creation failed!");
-		}
-		catch (...) {
-			std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
-			throw std::runtime_error("Unexpected error during shader validation stage. Shader creation failed!");
-		}
+		isShaderCompilationValid(std::get<GLenum>(shader), shaderIds.back(), shaderIds);
 	}
 
 	programID = glCreateProgram();
@@ -159,20 +77,7 @@ Shader::Shader(std::initializer_list<std::pair<GLenum, std::string>>&& shaders_l
 	glLinkProgram(programID);
 	std::for_each(shaderIds.begin(), shaderIds.end(), [&](GLuint shaderId) { glDetachShader(programID, shaderId); });
 
-	try {
-		std::string errorMessage;
-		isProgramLinkageValid(programID, errorMessage);
-	}
-	catch (std::runtime_error& e) {
-		std::cout << e.what();
-		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
-		throw std::runtime_error("Shader creation failed!");
-	}
-	catch (...) {
-		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
-		throw std::runtime_error("Unexpected error during shader validation stage. Shader creation failed!");
-	}
-
+	isProgramLinkageValid(programID, shaderIds);
 	std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
 }
 
@@ -189,11 +94,12 @@ void Shader::bind() {
 	glUseProgram(programID);
 }
 
-bool Shader::isShaderCompilationValid(GLuint shaderID, GLenum shaderType, std::string& errorMessage) {
+bool Shader::isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds) {
 	int success;
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
 	if (success != GL_TRUE) {
 		char errorLog[512];
+		std::string errorMessage;
 		glGetShaderInfoLog(shaderID, 512, NULL, errorLog);
 		switch (shaderType) {
 		case GL_VERTEX_SHADER:
@@ -218,23 +124,23 @@ bool Shader::isShaderCompilationValid(GLuint shaderID, GLenum shaderType, std::s
 			errorMessage += "INCORRECT_SHADER_SPECIFIED::";
 			break;
 		}
-		std::cout << "errorMessage: " << errorLog << '\n';
-		errorMessage = errorMessage + "FAILED_COMPILATION. ERROR MESSAGE: " + errorLog;
-		return false;
+		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
+		throw std::runtime_error(errorMessage + "FAILED_COMPILATION. ERROR MESSAGE: " + std::string(errorLog));
 	}
-	return true;
 }
 
-bool Shader::isProgramLinkageValid(GLuint programID, std::string& errorMessage) {
+void Shader::isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds) {
 	int success;
 	glGetProgramiv(programID, GL_LINK_STATUS, &success);
 	if (success != GL_TRUE) {
 		char errorLog[512];
 		glGetShaderInfoLog(programID, 512, NULL, errorLog);
-		errorMessage += "Program linkage error. Error message: " + std::string(errorLog);
-		return false;
+		
+		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
+		
+		std::string errorMessage = "Program linkage error. Error message: " + std::string(errorLog);
+		throw std::runtime_error(errorMessage);
 	}
-	return true;
 }
 
 }

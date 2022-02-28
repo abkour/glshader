@@ -21,4 +21,4 @@ Very simply, you only need to write the following code to write your shader:
 		shaderProgram.bind();
 
 The constructor automatically creates the list of shaders you specified by reading the files at the associated paths. It reports errors
-by throwing exceptions that you need to catch. If you wish to use the shader simply call the method bind();
+by throwing exceptions that you need to catch. If you wish to use the shader simply call the bind method.

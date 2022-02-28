@@ -182,10 +182,6 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 		}
 
 		if (!characterFound) {
-			nextTokenPosition = std::string::npos;
-		}
-
-		if (nextTokenPosition == std::string::npos) {
 			break;
 		}
 

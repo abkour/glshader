@@ -14,13 +14,10 @@ namespace tinygui {
 
 struct Shader {
 
-	// This is only used as an intermediate step.
-	inline Shader() noexcept;
-	inline Shader(Shader&& other) noexcept;
-
 	inline Shader(std::initializer_list<std::pair<GLenum, std::string>>&& shaders_list);
 
-	inline Shader(const char* vertexshaderPath, const char* fragmentshaderPath);
+	inline Shader(Shader&& other) noexcept;
+
 	inline ~Shader();
 
 	// You never want to create a copy of shader. Give me one good reason.
@@ -37,6 +34,8 @@ private:
 	GLuint programID;
 
 private:
+
+	inline Shader() noexcept;
 
 	static inline bool isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds);
 	static inline void isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds);

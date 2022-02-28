@@ -199,7 +199,7 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 		constexpr std::size_t include_size = sizeof(include_str) - 1;
 		bool isEqual = true;
 		for (int i = 0; i < include_size; ++i) {
-			// We use bounds checking, because the following statement might read out of bounds memory.
+			// We use bounds checking, because the array access might read out of bounds memory.
 			if (source.at(nextTokenPosition + i) != include_str[i]) {
 				isEqual = false;
 				break;

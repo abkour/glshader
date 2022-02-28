@@ -36,14 +36,14 @@ you can call the member function 'bind(void)' to bind this shader program as the
 You can move shaders to the other by using the following methods:
 
 ```c++
-		auto shaderA(std::move(shaderB))
+auto shaderA(std::move(shaderB))
 ```
 ```c++
-		auto shaderA = std::move(shaderB)
+auto shaderA = std::move(shaderB)
 ```
 ```c++
-		ShaderWrapper shaderA;
-		shaderA = std::move(shaderA)
+ShaderWrapper shaderA;
+shaderA = std::move(shaderA)
 ```
 
 There is no way to construct a copy of a shader and I don't see a reason why one would want to do that.

@@ -11,8 +11,17 @@ namespace tinygui {
 
 struct Shader {
 
+	// This is only used as an intermediate step.
+	inline Shader() noexcept;
+	inline Shader(Shader&& other) noexcept;
+
 	inline Shader(const char* vertexshaderPath, const char* fragmentshaderPath);
 	inline ~Shader();
+
+	// You never want to create a copy of shader. Give me one good reason.
+	inline Shader& operator=(const Shader& other) = delete;
+
+    inline Shader operator=(Shader&& other);
 
 	inline void bind();
 	inline GLuint id() const {
@@ -29,6 +38,9 @@ private:
 	static inline bool isProgramLinkageValid(GLuint programID, std::string& errorMessage);
 };
 
+Shader::Shader() noexcept
+	: programID(0)
+{}
 
 inline Shader::Shader(const char* vertexshaderPath, const char* fragmentshaderPath) {
 	//
@@ -98,6 +110,11 @@ inline Shader::Shader(const char* vertexshaderPath, const char* fragmentshaderPa
 
 	glDeleteShader(vertexShaderID);
 	glDeleteShader(fragmentShaderID);
+}
+
+Shader::Shader(Shader&& other) noexcept {
+	programID = other.programID;
+	other.programID = 0;
 }
 
 inline Shader::~Shader() {

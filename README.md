@@ -25,7 +25,7 @@ shaderProgram.bind();
 The first parameter `enableExtendedGLSL` is a boolean that tells the shader class to parse the shader source code for #include directives.
 
 The second parameter is a parameter pack of type `std::pair<GLenum, std::string>` that specifies the shader type and their associated 
-file locations. Make sure to use the `shader_pair` type alias to allow the compiler to deduce the correct type. Alternatively, you would 
+file locations. Make sure to use the `shader_p` type alias to allow the compiler to deduce the correct type. Alternatively, you would 
 have to use `std::pair<GLenum, std::string>` which is a little bit more cumbersome. 
 
 Finally, the construction of the shader program has finished. If any errors occured, you will need to catch them. If no errors occured,

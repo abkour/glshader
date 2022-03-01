@@ -144,7 +144,6 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 	std::size_t currentLine = 0;
 	std::size_t linePositionOfLastComment = 0;
 	constexpr char include_str[] = "include <";
-	constexpr char include_str2[] = "inclsde <";
 	constexpr std::size_t include_size = sizeof(include_str) - 1;
 	while (true) {
 		// 1. Find the first # token

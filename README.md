@@ -45,7 +45,7 @@ auto shaderA = std::move(shaderB)
 ```
 ```c++
 ShaderWrapper shaderA;
-shaderA = std::move(shaderA)
+shaderA = std::move(shaderB)
 ```
 
 There is no way to construct a copy of a shader and I don't see a reason why one would want to do that.

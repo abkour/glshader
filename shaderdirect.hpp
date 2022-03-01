@@ -57,7 +57,10 @@ struct ShaderWrapper {
 		: programID(std::exchange(other.programID, 0))
 	{}
 
-	inline ShaderWrapper& operator=(ShaderWrapper&& other) noexcept;
+	inline ShaderWrapper& operator=(ShaderWrapper&& other) noexcept {
+		programID = std::exchange(other.programID, 0);
+		return *this;
+	}
 
 	inline ~ShaderWrapper() {
 		glDeleteProgram(programID);
@@ -84,11 +87,6 @@ private:
 
 	void parseSource(std::string& source);
 };
-
-ShaderWrapper& ShaderWrapper::operator=(ShaderWrapper&& other) noexcept {
-	programID = std::exchange(other.programID, 0);
-	return *this;
-}
 
 bool ShaderWrapper::isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds) {
 	int success;

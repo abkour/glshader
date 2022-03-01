@@ -47,3 +47,23 @@ shaderA = std::move(shaderA)
 ```
 
 There is no way to construct a copy of a shader and I don't see a reason why one would want to do that.
+
+#### Inside your shader
+
+Within your shader you can then write the following code
+
+```c
+...
+#include <../../shaderfolder/passthrough.vs>
+...
+```
+One line comments work as you would expect
+```c
+#include <../../shaderfolder/passthrough.vs>
+//#include <../../shaderfolder/someshader.vs>
+```
+Multi line comments work in all ways as they would in C or C++
+```c
+#include <../../shaderfolder/passthrough.vs>/*
+*/#include <../../shaderfolder/someshader.vs>
+```

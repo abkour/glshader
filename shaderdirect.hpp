@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-using shader_pair = std::pair<GLenum, std::string>;
+using shader_p = std::pair<GLenum, std::string>;
 
 struct ShaderWrapper {
 

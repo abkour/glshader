@@ -150,7 +150,7 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 		// 1. Find the first # token
 		bool characterFound = false;
 		for (int i = nextTokenPosition; i < source.size(); ++i) {
-			if (source[i] == '#') {
+			if (source[i] == '#' && linePositionOfLastComment != currentLine) {
 				nextTokenPosition = i + 1; // Increment by 1 avoids circular loops.
 				positionOfRoute = i;
 				linePositionOfDirective = currentLine;
@@ -173,11 +173,6 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 			break;
 		}
 
-		// Is the include directive commented out? If so, continue processing the rest of the file.
-		if (linePositionOfDirective == linePositionOfLastComment) {
-			continue;
-		}
-
 		// Do the following characters match "include <"? If no, continue with the next token.
 		if (source.compare(nextTokenPosition, include_size, include_str) != 0) {
 			continue;
@@ -196,9 +191,8 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 			}
 		}
 
-		auto linesize = (nextTokenPosition - positionOfRoute) + 1;
-
-		auto include_path = source.substr(prevTokenPosition, nextTokenPosition - prevTokenPosition);
+		const auto linesize = (nextTokenPosition - positionOfRoute) + 1;
+		const auto include_path = source.substr(prevTokenPosition, nextTokenPosition - prevTokenPosition);
 		source.erase(positionOfRoute, linesize);
 		nextTokenPosition -= linesize;
 		

@@ -15,8 +15,8 @@ Very simply, you only need to write the following code to write your shader:
 ShaderWrapper shaderProgram
 (
 	true,
-	shader_pair(GL_VERTEX_SHADER, "mypath/myshader.glsl.vs"),
-	shader_pair(GL_FRAGMENT_SHADER, "mypath/myshader.glsl.fs")
+	shader_p(GL_VERTEX_SHADER, "mypath/myshader.glsl.vs"),
+	shader_p(GL_FRAGMENT_SHADER, "mypath/myshader.glsl.fs")
 	// potentially more shaders here
 );
 shaderProgram.bind();

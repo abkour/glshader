@@ -1,7 +1,6 @@
 #pragma once
 #include <glad/glad.h>
 
-#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -46,12 +45,12 @@ struct ShaderWrapper {
 		}
 		
 		programID = glCreateProgram();
-		std::for_each(shaderIds.begin(), shaderIds.end(), [&](GLuint shaderId) { glAttachShader(programID, shaderId); });
+		for (const auto& shaderID : shaderIds) { glAttachShader(programID, shaderID); }
 		glLinkProgram(programID);
-		std::for_each(shaderIds.begin(), shaderIds.end(), [&](GLuint shaderId) { glDetachShader(programID, shaderId); });
+		for (const auto& shaderID : shaderIds) { glDetachShader(programID, shaderID); }
 
 		isProgramLinkageValid(programID, shaderIds);
-		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
+		for (const auto& shaderID : shaderIds) { glDetachShader(programID, shaderID); }
 	}
 
 	inline ShaderWrapper(ShaderWrapper&& other) noexcept
@@ -121,7 +120,7 @@ bool ShaderWrapper::isShaderCompilationValid(GLenum shaderType, GLuint shaderID,
 			errorMessage += "INCORRECT_SHADER_SPECIFIED::";
 			break;
 		}
-		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
+		for (const auto& shaderID : shaderIds) { glDeleteShader(shaderID); }
 		throw std::runtime_error(errorMessage + "FAILED_COMPILATION. ERROR MESSAGE: " + std::string(errorLog));
 	}
 }
@@ -132,9 +131,7 @@ void ShaderWrapper::isProgramLinkageValid(GLuint programID, std::vector<GLuint>&
 	if (success != GL_TRUE) {
 		char errorLog[512];
 		glGetShaderInfoLog(programID, 512, NULL, errorLog);
-		
-		std::for_each(shaderIds.begin(), shaderIds.end(), [](GLuint shaderId) { glDeleteShader(shaderId); });
-		
+		for (const auto& shaderID : shaderIds) { glDeleteShader(shaderID); }
 		std::string errorMessage = "Program linkage error. Error message: " + std::string(errorLog);
 		throw std::runtime_error(errorMessage);
 	}

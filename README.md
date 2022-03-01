@@ -5,7 +5,7 @@ providing RAII consider using this library.
 
 ## Dependencies
 
-You need a C++17 compliant compiler, since std::conjunction_v is used.
+You need a C++17 compliant compiler, since `std::conjunction_v` is used.
 
 The only dependency is GLAD to load OpenGL function pointers into your program. You may have to modify the include directive at the top of the file 
 to point to the correct installation path.

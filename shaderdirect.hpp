@@ -1,16 +1,11 @@
 #pragma once
 #include <glad/glad.h>
-#include <string_view>
 
 #include <algorithm>
 #include <fstream>
-#include <initializer_list>
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include <type_traits>
 
 using shader_pair = std::pair<GLenum, std::string>;
 

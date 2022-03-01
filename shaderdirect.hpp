@@ -63,13 +63,17 @@ struct ShaderWrapper {
 		glDeleteProgram(programID);
 	}
 
-	// You never want to create a copy of a shader. Give me one good reason.
-	inline ShaderWrapper& operator=(const ShaderWrapper& other) = delete;
+	inline void bind() {
+		glUseProgram(programID);
+	}
 
-	inline void bind();
 	inline GLuint id() const {
 		return programID;
 	}
+
+	// You never want to create a copy of a shader. Give me one good reason.
+	ShaderWrapper(const ShaderWrapper& other) = delete;
+	inline ShaderWrapper& operator=(const ShaderWrapper& other) = delete;
 
 private:
 
@@ -84,10 +88,6 @@ private:
 ShaderWrapper& ShaderWrapper::operator=(ShaderWrapper&& other) noexcept {
 	programID = std::exchange(other.programID, 0);
 	return *this;
-}
-
-void ShaderWrapper::bind() {
-	glUseProgram(programID);
 }
 
 bool ShaderWrapper::isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds) {

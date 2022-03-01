@@ -56,16 +56,16 @@ Within your shader you can then write the following code
 
 ```c
 ...
-#include <../../shaderfolder/passthrough.vs>
+#include <../../shaderfolder/vertextransforms.glsl.impl>
 ...
 ```
 One line comments work as you would expect
 ```c
-#include <../../shaderfolder/passthrough.vs>
-//#include <../../shaderfolder/someshader.vs>
+#include <../../shaderfolder/vertextransforms.glsl.impl>
+//#include <../../shaderfolder/somelibrary.glsl.impl>
 ```
 Multi line comments work in all ways as they would in C or C++
 ```c
-#include <../../shaderfolder/passthrough.vs>/*
-*/#include <../../shaderfolder/someshader.vs>
+#include <../../shaderfolder/vertextransforms.glsl.impl>/*
+*/#include <../../shaderfolder/somelibrary.glsl.impl>
 ```

@@ -144,13 +144,14 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 	std::size_t currentLine = 0;
 	std::size_t linePositionOfLastComment = 0;
 	constexpr char include_str[] = "include <";
+	constexpr char include_str2[] = "inclsde <";
 	constexpr std::size_t include_size = sizeof(include_str) - 1;
 	while (true) {
 		// 1. Find the first # token
 		bool characterFound = false;
 		for (int i = nextTokenPosition; i < source.size(); ++i) {
 			if (source[i] == '#') {
-				nextTokenPosition = i;
+				nextTokenPosition = i + 1; // Increment by 1 avoids circular loops.
 				positionOfRoute = i;
 				linePositionOfDirective = currentLine;
 				characterFound = true;
@@ -172,26 +173,13 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 			break;
 		}
 
-		// We have to increment the position, because we want to have an index to the next
-		// character in the string to avoid circular loops.
-		nextTokenPosition += 1;
-
 		// Is the include directive commented out? If so, continue processing the rest of the file.
 		if (linePositionOfDirective == linePositionOfLastComment) {
 			continue;
 		}
 
-		// 2. Check if the following characters match the string "include <"
-		bool isEqual = true;
-		for (int i = 0; i < include_size; ++i) {
-			// We use bounds checking, because the array access might read out of bounds memory.
-			if (source.at(nextTokenPosition + i) != include_str[i]) {
-				isEqual = false;
-				break;
-			}
-		}
-
-		if (!isEqual) {
+		// Do the following characters match "include <"? If no, continue with the next token.
+		if (source.compare(nextTokenPosition, include_size, include_str) != 0) {
 			continue;
 		}
 
@@ -225,9 +213,7 @@ inline void ShaderWrapper::parseSource(std::string& source) {
 		include_file.close();
 
 		auto include_file_source = include_file_stream.str();
-		const std::size_t fileSize = include_file_source.size();
-		
-		source.insert(nextTokenPosition + 1, include_file_source.c_str(), fileSize);
-		nextTokenPosition += fileSize;
+		source.insert(nextTokenPosition + 1, include_file_source.c_str(), include_file_source.size());
+		nextTokenPosition += include_file_source.size();
 	}
 }

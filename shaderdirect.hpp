@@ -78,6 +78,75 @@ struct ShaderWrapper {
 	ShaderWrapper(const ShaderWrapper& other) = delete;
 	inline ShaderWrapper& operator=(const ShaderWrapper& other) = delete;
 
+public:
+
+	// Upload functions
+	void upload1fv(float* src, const char* uniform_name) {
+		glUniform1fv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload2fv(float* src, const char* uniform_name) {
+		glUniform2fv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload3fv(float* src, const char* uniform_name) {
+		glUniform3fv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload4fv(float* src, const char* uniform_name) {
+		glUniform4fv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	
+	void upload1dv(double* src, const char* uniform_name) {
+		glUniform1dv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload2dv(double* src, const char* uniform_name) {
+		glUniform2dv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload3dv(double* src, const char* uniform_name) {
+		glUniform3dv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload4dv(double* src, const char* uniform_name) {
+		glUniform4dv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+
+	void upload1iv(int* src, const char* uniform_name) {
+		glUniform1iv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload2iv(int* src, const char* uniform_name) {
+		glUniform2iv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload3iv(int* src, const char* uniform_name) {
+		glUniform3iv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload4iv(int* src, const char* uniform_name) {
+		glUniform4iv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+
+	void upload1uiv(unsigned int* src, const char* uniform_name) {
+		glUniform1uiv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload2uiv(unsigned int* src, const char* uniform_name) {
+		glUniform2uiv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload3uiv(unsigned int* src, const char* uniform_name) {
+		glUniform3uiv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+	void upload4uiv(unsigned int* src, const char* uniform_name) {
+		glUniform4uiv(glGetUniformLocation(programID, uniform_name), 1, src);
+	}
+
+	void upload33fm(float* src, const char* uniform_name) {
+		glUniformMatrix3fv(glGetUniformLocation(programID, uniform_name), 1, GL_FALSE, src);
+	}
+	void upload44fm(float* src, const char* uniform_name) {
+		glUniformMatrix4fv(glGetUniformLocation(programID, uniform_name), 1, GL_FALSE, src);
+	}
+
+	void upload33dm(double* src, const char* uniform_name) {
+		glUniformMatrix3dv(glGetUniformLocation(programID, uniform_name), 1, GL_FALSE, src);
+	}
+	void upload44dm(double* src, const char* uniform_name) {
+		glUniformMatrix4dv(glGetUniformLocation(programID, uniform_name), 1, GL_FALSE, src);
+	}
+
 private:
 
 	GLuint programID;

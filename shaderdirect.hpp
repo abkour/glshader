@@ -41,7 +41,7 @@ struct ShaderWrapper {
 			glShaderSource(shaderIds.back(), 1, &shaderSourceCString, NULL);
 			glCompileShader(shaderIds.back());
 
-			isShaderCompilationValid(std::get<GLenum>(shader), shaderIds.back(), shaderIds);
+			isShaderCompilationValid(std::get<std::string>(shader).c_str(), std::get<GLenum>(shader), shaderIds.back(), shaderIds);
 		}
 		
 		programID = glCreateProgram();
@@ -152,7 +152,7 @@ private:
 	GLuint programID;
 
 	static inline bool isShaderCompilationValid(const char* filename, GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds);
-	static inline void isProgramLinkageValid(const char* filename, GLuint programID, std::vector<GLuint>& shaderIds);
+	static inline void isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds);
 
 	void parseSource(std::string& source);
 };
@@ -188,18 +188,18 @@ bool ShaderWrapper::isShaderCompilationValid(const char* filename, GLenum shader
 			break;
 		}
 		for (const auto& shaderID : shaderIds) { glDeleteShader(shaderID); }
-		throw std::runtime_error(errorMessage + "FAILED_COMPILATION. ERROR MESSAGE: " + std::string(errorLog) + " in file " + filename);
+		throw std::runtime_error(errorMessage + "FAILED_COMPILATION. ERROR MESSAGE: " + std::string(errorLog) + "[File] \"" + filename + "\"");
 	}
 }
 
-void ShaderWrapper::isProgramLinkageValid(const char* filename, GLuint programID, std::vector<GLuint>& shaderIds) {
+void ShaderWrapper::isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds) {
 	int success;
 	glGetProgramiv(programID, GL_LINK_STATUS, &success);
 	if (success != GL_TRUE) {
 		char errorLog[512];
 		glGetShaderInfoLog(programID, 512, NULL, errorLog);
 		for (const auto& shaderID : shaderIds) { glDeleteShader(shaderID); }
-		std::string errorMessage = "Program linkage error. Error message: " + std::string(errorLog) + " in file " + filename;
+		std::string errorMessage = "Program linkage error. Error message: " + std::string(errorLog);
 		throw std::runtime_error(errorMessage);
 	}
 }

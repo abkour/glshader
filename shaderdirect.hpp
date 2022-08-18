@@ -151,13 +151,13 @@ private:
 
 	GLuint programID;
 
-	static inline bool isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds);
-	static inline void isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds);
+	static inline bool isShaderCompilationValid(const char* filename, GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds);
+	static inline void isProgramLinkageValid(const char* filename, GLuint programID, std::vector<GLuint>& shaderIds);
 
 	void parseSource(std::string& source);
 };
 
-bool ShaderWrapper::isShaderCompilationValid(GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds) {
+bool ShaderWrapper::isShaderCompilationValid(const char* filename, GLenum shaderType, GLuint shaderID, std::vector<GLuint>& shaderIds) {
 	int success;
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
 	if (success != GL_TRUE) {
@@ -188,18 +188,18 @@ bool ShaderWrapper::isShaderCompilationValid(GLenum shaderType, GLuint shaderID,
 			break;
 		}
 		for (const auto& shaderID : shaderIds) { glDeleteShader(shaderID); }
-		throw std::runtime_error(errorMessage + "FAILED_COMPILATION. ERROR MESSAGE: " + std::string(errorLog));
+		throw std::runtime_error(errorMessage + "FAILED_COMPILATION. ERROR MESSAGE: " + std::string(errorLog) + " in file " + filename);
 	}
 }
 
-void ShaderWrapper::isProgramLinkageValid(GLuint programID, std::vector<GLuint>& shaderIds) {
+void ShaderWrapper::isProgramLinkageValid(const char* filename, GLuint programID, std::vector<GLuint>& shaderIds) {
 	int success;
 	glGetProgramiv(programID, GL_LINK_STATUS, &success);
 	if (success != GL_TRUE) {
 		char errorLog[512];
 		glGetShaderInfoLog(programID, 512, NULL, errorLog);
 		for (const auto& shaderID : shaderIds) { glDeleteShader(shaderID); }
-		std::string errorMessage = "Program linkage error. Error message: " + std::string(errorLog);
+		std::string errorMessage = "Program linkage error. Error message: " + std::string(errorLog) + " in file " + filename;
 		throw std::runtime_error(errorMessage);
 	}
 }

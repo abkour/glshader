@@ -81,19 +81,19 @@ public:
 	//
 	// Setter functions
 	void set_double(double val, const char* uniform_name) {
-		glUniform1dv(glGetUniformLocation(programID, uniform_name), 1, &src);
+		glUniform1dv(glGetUniformLocation(programID, uniform_name), 1, &val);
 	}
 
 	void set_float(float val, const char* uniform_name) {
-		glUniform1fv(glGetUniformLocation(programID, uniform_name), 1, &src);
+		glUniform1fv(glGetUniformLocation(programID, uniform_name), 1, &val);
 	}
 
 	void set_int(int val, const char* uniform_name) {
-		glUniform1iv(glGetUniformLocation(programID, uniform_name), 1, &src);
+		glUniform1iv(glGetUniformLocation(programID, uniform_name), 1, &val);
 	}
 
 	void set_uint(unsigned val, const char* uniform_name) {
-		glUniform1uiv(glGetUniformLocation(programID, uniform_name), 1, &src);
+		glUniform1uiv(glGetUniformLocation(programID, uniform_name), 1, &val);
 	}
 
 	//

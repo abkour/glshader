@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -15,9 +16,8 @@ struct ShaderWrapper {
 	template<typename... T, typename = std::enable_if<std::conjunction_v<std::is_same<std::pair<GLenum, std::string>, T>...>>>
 	ShaderWrapper(bool enableExtendedGLSL, T&&... args) {
 		std::vector<typename std::common_type<T...>::type> shaders = { args... };
-		std::vector<GLuint> shaderIds(shaders.size());
-		shaderIds.reserve(shaders.size());
-		
+		std::vector<GLuint> shaderIds;
+
 		for (auto shader : shaders) {
 			shaderIds.push_back(glCreateShader(std::get<GLenum>(shader)));
 
@@ -48,9 +48,7 @@ struct ShaderWrapper {
 		for (const auto& shaderID : shaderIds) { glAttachShader(programID, shaderID); }
 		glLinkProgram(programID);
 		for (const auto& shaderID : shaderIds) { glDetachShader(programID, shaderID); }
-
 		isProgramLinkageValid(programID, shaderIds);
-		for (const auto& shaderID : shaderIds) { glDetachShader(programID, shaderID); }
 	}
 
 	inline ShaderWrapper(ShaderWrapper&& other) noexcept
@@ -80,25 +78,6 @@ struct ShaderWrapper {
 
 public:
 
-	//
-	// Set uniform functions
-	void set_double(double val, const char* uniform_name) {
-		glUniform1dv(glGetUniformLocation(programID, uniform_name), 1, &val);
-	}
-	
-	void set_float(float val, const char* uniform_name) {
-		glUniform1fv(glGetUniformLocation(programID, uniform_name), 1, &val);
-	}
-
-	void set_int(int val, const char* uniform_name) {
-		glUniform1iv(glGetUniformLocation(programID, uniform_name), 1, &val);
-	}
-
-	void set_uint(unsigned val, const char* uniform_name) {
-		glUniform1uiv(glGetUniformLocation(programID, uniform_name), 1, &val);
-	}
-
-	//
 	// Upload functions
 	void upload1fv(float* src, const char* uniform_name) {
 		glUniform1fv(glGetUniformLocation(programID, uniform_name), 1, src);
